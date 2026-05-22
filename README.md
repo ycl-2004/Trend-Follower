@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="img/Banner.png" alt="TrendFollower banner" width="100%">
+</p>
+
 # TrendFollower
 
 TrendFollower is a Codex skill for finding fast-rising open-source GitHub projects from the past week. It supports a slash-style prompt convention:
@@ -17,9 +21,9 @@ Mode `1` is the default and ranks projects by absolute stars gained over the pas
 Clone the repository and copy the skill into your Codex skills directory:
 
 ```bash
-git clone https://github.com/<your-name>/TrendFollower.git
+git clone https://github.com/ycl-2004/Trend-Follower.git
 mkdir -p ~/.codex/skills
-cp -R TrendFollower/skills/trend-follower ~/.codex/skills/
+cp -R Trend-Follower/skills/trend-follower ~/.codex/skills/
 ```
 
 Restart Codex after installing so the skill can be discovered.

@@ -129,14 +129,15 @@ flowchart LR
 
 这个问题本身很有用，但在真实使用场景里，用户不一定每次都想看所有项目。比如有的人只关心 AI agent，有的人只想看 coding tool，有的人可能更在意 education、automation 或 productivity 相关的项目。如果每次都只给一个全局榜单，用户还是需要自己再筛选一遍。
 
-所以我觉得未来最值得加入的功能，是 **topic / keyword filtering**。
+所以我觉得接下来最值得加入、也已经进入 skill workflow 的功能，是 **topic / keyword filtering**。
 
-未来的调用方式可以像这样：
+调用方式可以像这样：
 
 ```txt
 /trendfollower 1 agent
 /trendfollower 2 coding
 /trendfollower 1 education
+/trendfollower 1 20 3D
 ```
 
 这样 TrendFollower 就可以从一个 general trend scanner，变成更有针对性的 lightweight scanner。它不只是告诉用户“全网什么最火”，而是帮助用户找到：
@@ -148,6 +149,12 @@ flowchart LR
 这样它就不只是一个全局 GitHub trend scanner，也可以变成一个更贴近日常使用的轻量级项目发现工具。
 
 对内容创作来说，这也很方便，比如 `/trendfollower 1 agent` 可以整理“本周增长最快的 AI agent 项目”，`/trendfollower 1 coding` 可以变成“本周值得关注的 AI coding tools”。
+
+具体执行时，TrendFollower 会先尽量寻找数据源里已经存在的 topic、language 或 keyword 范围。如果没有对应的趋势页，就先用 GitHub repository search 找到相关 repo 候选，再根据 mode `1` 或 mode `2` 的增长指标排序。若只能拿到全局增长榜，则会先按全局榜排序再做 topic 过滤，并在报告里明确标注这是 post-filtered global ranking。
+
+如果某些 topic 候选 repo 没有足够的周增长数据，或者本周可验证的 topic 排名凑不满用户要求的数量，它们不会被混进排名表，而是可以被放进报告的 `Additional Candidates` 区块。这个区块可以来自更广的 GitHub open-source 搜索，不要求项目是这一周的趋势，但要说明它们是“相关开源候选”，不是 weekly ranking。这样既保留发现结果，也不会让排序失真。
+
+因为 TrendFollower 的定位是快速发现，而不是完整研究，所以 topic 搜索需要有时间预算。默认应该优先在 3 分钟左右完成，接近 5 分钟时停止扩展来源；如果结果不足，就交付 partial ranking 和少量 `Additional Candidates`，而不是继续扩大搜索直到凑满。
 
 ## 7. 总结：这个项目想解决什么
 

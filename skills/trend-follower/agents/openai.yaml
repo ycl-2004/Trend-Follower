@@ -1,4 +1,4 @@
 interface:
   display_name: "TrendFollower"
-  short_description: "Find fast-rising GitHub open-source projects"
-  default_prompt: "Use $trend-follower to find the fastest-growing GitHub open-source projects from the past week."
+  short_description: "Find fast-rising GitHub projects globally or by topic"
+  default_prompt: "Use $trend-follower to find the fastest-growing GitHub open-source projects from the past week, optionally scoped to a topic such as AI agents or coding tools."

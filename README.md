@@ -18,13 +18,24 @@ TrendFollower 支持 slash-style 调用：
 /trendfollower 2
 /trendfollower 1 20
 /trendfollower 2 20
+/trendfollower agent
+/trendfollower 1 agent
+/trendfollower 2 coding tools
+/trendfollower 1 20 3D
 ```
 
 模式说明：
 
 - `1`：默认模式，按照过去一周新增 stars 数量排序。
 - `2`：按照 7 天百分比增长排序，更适合发现体量不一定最大、但最近增长很快的新项目。
-- 最后的数字表示输出数量。例如 `/trendfollower 1 20` 会输出前 20 个项目。
+- mode 后面的第一个纯数字表示输出数量。例如 `/trendfollower 1 20` 会输出前 20 个项目。
+- 数量后面的文字表示 topic / keyword scope。例如 `/trendfollower 1 20 3D` 会用 mode `1` 输出 20 个和 `3D` 相关的项目。像 `3D` 这种数字开头但不是纯数字的内容会被当作 topic，而不是 count。
+
+如果不写 mode，默认使用 mode `1`。例如 `/trendfollower agent` 等价于使用 mode `1`、默认数量 `10`，并把 `agent` 当作 topic。
+
+Topic 扫描会优先寻找 GitHub Trending 或其他数据源里已有的相关 topic / language 范围。如果没有合适的 topic-specific 趋势页，就先用 GitHub repository search 按 topic、keyword、README、描述或语言筛出候选 repo，再按所选 mode 的增长指标排序。若某个来源只能提供全局榜单，TrendFollower 会先按全局榜单排序，再做 topic 过滤，并在输出里明确说明这是 post-filtered global ranking。
+
+如果 topic 搜到了相关 repo，但缺少可以支撑 mode `1` 或 mode `2` 排名的增长数据，或者本周可排名结果凑不满用户要求的数量，TrendFollower 可以做一个更广的 GitHub open-source 搜索，把相关项目放到报告里的 `Additional Candidates` 区块。这些项目不需要是本周趋势项目，但必须是公开、开源、和 topic 相关的 repo，并且不会混进主排名表。
 
 输出内容会尽量包含：
 
@@ -33,6 +44,7 @@ TrendFollower 支持 slash-style 调用：
 - 项目链接；
 - 近一周增长数据；
 - 项目用途说明；
+- topic / scope；
 - 数据来源和当前限制。
 
 ## 安装方式
@@ -61,6 +73,13 @@ cp -R Trend-Follower/skills/trend-follower ~/.codex/skills/
 /trendfollower 2 20
 ```
 
+也可以指定 topic：
+
+```text
+/trendfollower 1 agent
+/trendfollower 2 20 coding tools
+```
+
 TrendFollower 会在聊天中直接返回结果。如果当前环境允许写入文件，它也会把完整 Markdown 报告写到默认路径：
 
 ```text
@@ -74,6 +93,12 @@ outputs/trend-follower.md
 ```
 
 报告文件默认会被覆盖，而不是每次生成新的 timestamp 文件。这样可以保持输出路径稳定，也避免随机污染正在工作的项目目录。
+
+## 运行速度预期
+
+TrendFollower 的定位是快速发现工具，不是完整研究任务。默认目标是在 3 分钟左右完成，并在接近 5 分钟前停止扩大搜索范围。
+
+如果 topic 很宽或数据源没有原生 topic 周增长榜，TrendFollower 会优先返回一个清楚标注限制的 partial ranking，而不是为了凑满数量继续扫很多网页。缺少周增长数据但仍然相关的开源项目，可以放在 `Additional Candidates` 区块里。
 
 ## 关于 slash-style 调用
 
@@ -121,4 +146,10 @@ python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/t
 
 ```bash
 printf '[{"repo":"owner/repo","url":"https://github.com/owner/repo","growth":"+100 stars","purpose":"Example project.","source":"Fixture","source_url":"https://example.com"}]' | python3 skills/trend-follower/scripts/render_report.py --mode 1 --sources "Fixture" --limitations "Fixture data for local testing only."
+```
+
+Topic 报告 formatter 测试：
+
+```bash
+printf '[{"repo":"owner/repo","url":"https://github.com/owner/repo","growth":"+100 stars","purpose":"Example project.","source":"Fixture","source_url":"https://example.com"}]' | python3 skills/trend-follower/scripts/render_report.py --mode 1 --topic "agent" --scope "GitHub repository search candidate set, ranked by weekly star gain" --sources "Fixture" --limitations "Fixture data for local testing only." --output /tmp/trend-follower-topic.md
 ```

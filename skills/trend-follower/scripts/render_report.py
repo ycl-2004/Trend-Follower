@@ -82,10 +82,12 @@ def render(args: argparse.Namespace, items: list[dict[str, Any]]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Render outputs/trend-follower.md from TrendFollower JSON results."
+        description="Render a TrendFollower Markdown report from structured JSON results."
     )
     parser.add_argument("--input", default="-", help="JSON input path, or '-' for stdin.")
-    parser.add_argument("--output", default="outputs/trend-follower.md")
+    parser.add_argument(
+        "--output", default="~/Documents/Codex/TrendFollower/trend-follower.md"
+    )
     parser.add_argument("--mode", choices=sorted(MODE_LABELS), default="1")
     parser.add_argument("--query-date", default=dt.date.today().isoformat())
     parser.add_argument("--sources", required=True)
@@ -95,7 +97,7 @@ def main() -> int:
     items = load_items(args.input)
     report = render(args, items)
 
-    output_path = pathlib.Path(args.output)
+    output_path = pathlib.Path(args.output).expanduser()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(report, encoding="utf-8")
     return 0

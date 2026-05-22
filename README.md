@@ -42,13 +42,21 @@ or:
 /trendfollower 2 20
 ```
 
-The skill always returns the result in chat. When file access is available, it also overwrites:
+The skill always returns the result in chat. When file access is available, it also overwrites this user-level report file:
+
+```text
+~/Documents/Codex/TrendFollower/trend-follower.md
+```
+
+The report includes the query date, data sources, ranking metric, known limitations, and a Markdown table of the ranked repositories.
+
+Generated reports are intentionally written outside the installed skill folder under `~/.codex/skills`, because the skill folder should stay clean and reusable. The user-level report path also avoids dropping an `outputs/` folder into whatever code project the user happened to be working in.
+
+If Codex only has permission to write inside the current workspace, or if the user explicitly asks to save the report in the current project, the fallback path is:
 
 ```text
 outputs/trend-follower.md
 ```
-
-The report includes the query date, data sources, ranking metric, known limitations, and a Markdown table of the ranked repositories.
 
 ## Slash-Style Invocation
 
@@ -62,7 +70,7 @@ Normal usage requires:
 
 - Codex with skill discovery enabled.
 - Internet/search access for fresh public GitHub ranking data.
-- Workspace file access if you want `outputs/trend-follower.md` to be written.
+- File write access if you want the Markdown report to be saved. The preferred path is `~/Documents/Codex/TrendFollower/trend-follower.md`; the workspace fallback is `outputs/trend-follower.md`.
 
 The GitHub connector/plugin is not required for the default public ranking workflow. It can be useful for authenticated GitHub API access, private repositories, PR/issue workflows, or higher-rate programmatic GitHub operations, but `/trendfollower` only needs public web access for sources such as GitHub Trending weekly and credible public star-growth leaderboards.
 
@@ -80,11 +88,9 @@ skills/
     references/source-policy.md
     references/output-format.md
     scripts/render_report.py
-outputs/
-  .gitkeep
 ```
 
-The `outputs/` directory is for generated reports. Markdown report files in that directory are intentionally ignored so local runs do not pollute the repository.
+Generated reports are not part of the skill package. Markdown report files under `outputs/` are ignored so local fallback runs do not pollute the repository.
 
 ## Validate
 
@@ -97,7 +103,7 @@ python3 /Users/yichenlin/.codex/skills/.system/skill-creator/scripts/quick_valid
 Smoke-test the report formatter:
 
 ```bash
-printf '[{"repo":"owner/repo","url":"https://github.com/owner/repo","growth":"+100 stars","purpose":"Example project.","source":"Fixture","source_url":"https://example.com"}]' | python3 skills/trend-follower/scripts/render_report.py --mode 1 --sources "Fixture" --limitations "Fixture data for local testing only." --output outputs/trend-follower.md
+printf '[{"repo":"owner/repo","url":"https://github.com/owner/repo","growth":"+100 stars","purpose":"Example project.","source":"Fixture","source_url":"https://example.com"}]' | python3 skills/trend-follower/scripts/render_report.py --mode 1 --sources "Fixture" --limitations "Fixture data for local testing only."
 ```
 
-Delete `outputs/trend-follower.md` after local smoke tests if you want a clean publishing workspace.
+Delete `~/Documents/Codex/TrendFollower/trend-follower.md` after local smoke tests if you do not want to keep the fixture report.

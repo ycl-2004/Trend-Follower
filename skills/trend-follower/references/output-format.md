@@ -10,7 +10,7 @@ Mode: 1 - absolute stars gained, or 2 - percentage growth
 Sorting metric: ...
 Sources: ...
 Limitations: ...
-Report file: outputs/trend-follower.md
+Report file: ~/Documents/Codex/TrendFollower/trend-follower.md
 ```
 
 Then provide one table:
@@ -21,7 +21,7 @@ Then provide one table:
 
 ## Markdown Report
 
-Write the full report to `outputs/trend-follower.md` and overwrite the previous file.
+Write the full report to `~/Documents/Codex/TrendFollower/trend-follower.md` and overwrite the previous file. If that path is not writable, use `outputs/trend-follower.md` in the current workspace and say that the fallback path was used.
 
 ```md
 # TrendFollower Report
@@ -39,8 +39,10 @@ Limitations: GitHub Trending's "this week" view may not equal a strict rolling 1
 
 ## File Rules
 
-- Default output directory: `outputs/`
-- Default output file: `outputs/trend-follower.md`
+- Default output directory: `~/Documents/Codex/TrendFollower/`
+- Default output file: `~/Documents/Codex/TrendFollower/trend-follower.md`
+- Fallback output file: `outputs/trend-follower.md` in the current workspace
 - Overwrite the file on every run.
+- Do not write generated reports into the installed skill directory unless the user explicitly asks for that path.
 - Do not create `test1.md`, `test2.md`, timestamped files, or history files in normal use.
 - During local validation, temporary test files may be created and must be deleted before the workspace is considered clean.

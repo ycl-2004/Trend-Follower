@@ -7,7 +7,7 @@ description: Find fast-rising open-source GitHub projects from the past week and
 
 ## Overview
 
-Produce a current, source-backed ranking of fast-growing open-source GitHub repositories and save a reusable Markdown report. Always show the result in chat and, when file access is available, overwrite `outputs/trend-follower.md` with the same report.
+Produce a current, source-backed ranking of fast-growing open-source GitHub repositories and save a reusable Markdown report. Always show the result in chat and, when file access is available, prefer overwriting `~/Documents/Codex/TrendFollower/trend-follower.md` with the same report.
 
 ## Command Protocol
 
@@ -34,7 +34,7 @@ If the mode is omitted, use mode `1`. Interpret the optional second numeric argu
 4. Rank the projects using the selected metric and keep only the requested count.
 5. Verify each repository is open source and identify its purpose from the repo description, README, or project homepage.
 6. Produce the chat answer with the required metadata and table.
-7. When local file access is available, create `outputs/` if needed and overwrite `outputs/trend-follower.md` with the full Markdown report. Do not create timestamped or per-test files unless the user explicitly asks for historical reports.
+7. When local file access is available, write the full Markdown report to the output location described below. Do not write reports into the installed skill directory unless the user explicitly asks for that path. Do not create timestamped or per-test files unless the user explicitly asks for historical reports.
 
 ## Required Metadata
 
@@ -51,10 +51,18 @@ Every chat answer and report file must include:
 Default report path:
 
 ```text
+~/Documents/Codex/TrendFollower/trend-follower.md
+```
+
+Overwrite this file on every run. This keeps random project folders clean when the user invokes the skill while working elsewhere.
+
+Fallback report path:
+
+```text
 outputs/trend-follower.md
 ```
 
-Overwrite this file on every run. Keep the chat answer concise enough to read immediately, but keep the file complete enough to serve as a reference.
+Use the fallback only when the default user-level directory is not writable, when the environment only permits writing to the current workspace, or when the user explicitly asks to save the report in the current project. Keep the installed skill directory clean; it should behave like a reusable package, not a per-run output store. Keep the chat answer concise enough to read immediately, but keep the file complete enough to serve as a reference.
 
 Use `references/output-format.md` for the report template. If you have structured result data, `scripts/render_report.py` can write the Markdown report deterministically; otherwise write the same template directly.
 

@@ -91,7 +91,13 @@ flowchart LR
 
 在安全性和文档边界上，我也希望这个项目保持透明。TrendFollower 只处理公开的 GitHub 趋势信息，不涉及私人仓库、用户账号数据或 API key。输出报告时，也会尽量标明数据来源、排序方式和当前限制，避免让用户误以为这个榜单是绝对完整或永久准确的排名。
 
-## 5. 当前版本：TrendFollower 现在可以做什么
+## 5. 我的项目入手方向和 AI 辅助流程
+
+在做这个项目之前，我先从选题确认入手，思考这个需求是否足够具体、是否适合被整理成一个轻量级的 Codex skill。我平时常用的 AI 工具包括 Grok、GPT、Gemini 和 NotebookLM，但因为这个项目本身不大，主要资料也集中在实时网络趋势和公开网页上，所以这次没有使用 NotebookLM 这种更适合整理大量固定资料的工具。
+
+这次我主要先用 Grok 做前期 idea exploration，因为它比较适合观察当下网络上正在讨论的内容，也能帮我快速找到一些和 GitHub trend 相关的网站和方向。之后，我再把这些初步想法交给 GPT，让它帮我进一步整理项目结构、使用场景、需要包含的内容，以及可能要注意的数据来源和风险。最后，我把整理好的思路和 prompts 交给 Codex，让它帮我生成具体 plan，并按照计划完成 skill 的实现和文档整理。
+
+## 6. 当前版本：TrendFollower 现在可以做什么
 
 当前版本中，**TrendFollower** 已经被整理成一个可以安装调用的 Codex skill。它的目标不是做成复杂的大型应用，而是先把一个明确、独立、可重复的 workflow 跑通：帮助用户快速发现过去一周 GitHub 上增长最快的开源项目，并用简洁的方式理解它们的用途。
 
@@ -103,9 +109,15 @@ flowchart LR
 /trendfollower 2
 /trendfollower 1 20
 /trendfollower 2 20
+/trendfollower agent
+/trendfollower 1 agent
+/trendfollower 2 20 coding tools
+/trendfollower 1 20 3D
 ```
 
 其中，`1` 表示按照过去一周新增 stars 数量排序，适合快速查看“这周 GitHub 上哪些项目最火”。`2` 表示按照 7 天百分比增长排序，更适合发现一些原本体量不一定最大、但最近增长速度很快的新项目。后面再加数字，例如 `/trendfollower 1 20`，就表示输出前 20 个项目，而不是默认的前 10 个项目。
+
+当前版本也已经支持在指令后面加入 topic 或 keyword。比如 `/trendfollower 1 agent` 可以看和 agent 相关的项目，`/trendfollower 2 20 coding tools` 可以看和 coding tools 相关、并按百分比增长排序的项目。这样它就不只是一个全局的 GitHub trend scanner，也可以围绕用户关心的方向做第一轮筛选。
 
 我最终采用这种 slash-style 的调用方式，是因为我认为 TrendFollower 是一个相对独立、而且边界感很明确的任务。它不是一个需要一直在后台运行的规则，而是一个只有在用户真的想追踪 GitHub 趋势项目时，才需要被主动调用的工具。
 
@@ -115,48 +127,19 @@ flowchart LR
 
 所以我认为，对于像 TrendFollower 这样的小型独立项目来说，**可控性比自动化更重要**。我希望它是一个用户主动拿出来使用的工具，而不是一个随时可能被误触发的背景规则。
 
-这也符合 TrendFollower 的定位：它的任务很明确，就是在用户需要的时候，帮助用户追踪 GitHub 上增长较快的开源项目，并整理出项目排名、repository 名称、项目链接、近一周增长数据、用途说明和数据来源。用户只需要在对话框里输入对应的 slash-style 指令和数字模式，就可以让 skill 执行相应任务。
+这也符合 TrendFollower 的定位：它的任务很明确，就是在用户需要的时候，帮助用户追踪 GitHub 上增长较快的开源项目，并整理出项目排名、repository 名称、项目链接、近一周增长数据、用途说明和数据来源。用户只需要在对话框里输入对应的 slash-style 指令、数字模式，或者加上自己关心的关键词范围，就可以让 skill 执行相应任务。
 
-## 6. 未来可以怎么改进
+## 7. 未来可以怎么改进
 
 未来我不太想把 TrendFollower 做成一个功能很多、什么都能做的大工具。因为它本来就是一个很小、很明确的 skill：当我想快速知道 GitHub 上最近有哪些开源项目正在变热时，它可以帮我先扫一遍、整理一遍，然后用简单的话告诉我这些项目是做什么的。
 
 所以我觉得它未来的改进方向，不应该是不断往里面加复杂功能，而是让它在原本的 workflow 上变得更精准一点。
 
-目前 TrendFollower 做的是比较全局的扫描。也就是说，它回答的是：
+现在 TrendFollower 已经支持 topic / keyword filtering，所以我下一步更想 focus 的不是继续增加更多关键词功能，而是处理执行时间的问题。因为目前这个问题是我已经知道的限制，但还没有真正做成一个完整修改。
 
-> 这周 GitHub 上哪些开源项目增长最快？
+目前 TrendFollower 的定位应该是一个 lightweight skill，但它实际运行时间较久。现在hard limit 大概 5 分钟。但因为当前版本没有后端缓存，也没有提前维护一个 keyword 字典或工具列表，所以它在处理 topic 搜索时，还是需要一轮一轮去抓取 GitHub repo 的内容，再判断这些项目是否相关。
 
-这个问题本身很有用，但在真实使用场景里，用户不一定每次都想看所有项目。比如有的人只关心 AI agent，有的人只想看 coding tool，有的人可能更在意 education、automation 或 productivity 相关的项目。如果每次都只给一个全局榜单，用户还是需要自己再筛选一遍。
-
-所以我觉得接下来最值得加入、也已经进入 skill workflow 的功能，是 **topic / keyword filtering**。
-
-调用方式可以像这样：
-
-```txt
-/trendfollower 1 agent
-/trendfollower 2 coding
-/trendfollower 1 education
-/trendfollower 1 20 3D
-```
-
-这样 TrendFollower 就可以从一个 general trend scanner，变成更有针对性的 lightweight scanner。它不只是告诉用户“全网什么最火”，而是帮助用户找到：
-
-> 在我关心的领域里，哪些 GitHub 项目正在快速增长？
-
-这个改进的重点不是把 TrendFollower 做成一个完整搜索引擎，而是让它在原本简单的 workflow 上多一层“方向感”：用户可以输入自己关心的关键词，再让 Codex 围绕这个 topic 去找更匹配的开源项目。
-
-这样它就不只是一个全局 GitHub trend scanner，也可以变成一个更贴近日常使用的轻量级项目发现工具。
-
-对内容创作来说，这也很方便，比如 `/trendfollower 1 agent` 可以整理“本周增长最快的 AI agent 项目”，`/trendfollower 1 coding` 可以变成“本周值得关注的 AI coding tools”。
-
-具体执行时，TrendFollower 会先尽量寻找数据源里已经存在的 topic、language 或 keyword 范围。如果没有对应的趋势页，就先用 GitHub repository search 找到相关 repo 候选，再根据 mode `1` 或 mode `2` 的增长指标排序。若只能拿到全局增长榜，则会先按全局榜排序再做 topic 过滤，并在报告里明确标注这是 post-filtered global ranking。
-
-如果某些 topic 候选 repo 没有足够的周增长数据，或者本周可验证的 topic 排名凑不满用户要求的数量，它们不会被混进排名表，而是可以被放进报告的 `Additional Candidates` 区块。这个区块可以来自更广的 GitHub open-source 搜索，不要求项目是这一周的趋势，但要说明它们是“相关开源候选”，不是 weekly ranking。这样既保留发现结果，也不会让排序失真。
-
-因为 TrendFollower 的定位是快速发现，而不是完整研究，所以 topic 搜索需要有时间预算。默认应该优先在 3 分钟左右完成，接近 5 分钟时停止扩展来源；如果结果不足，就交付 partial ranking 和少量 `Additional Candidates`，而不是继续扩大搜索直到凑满。
-
-## 7. 总结：这个项目想解决什么
+## 8. 总结：这个项目想解决什么
 
 TrendFollower 想解决的，其实不是“再推荐几个 GitHub 项目”这么简单。网上已经有很多人在推荐工具、整理项目、分享 repo 了，我真正想解决的是：当 AI 和开源项目更新得越来越快时，我们能不能用一个更省时间、更清楚、更低成本的方式，先判断哪些东西真的值得看。
 

@@ -100,11 +100,17 @@ TrendFollower 的定位是快速发现工具，不是完整研究任务。默认
 
 如果 topic 很宽或数据源没有原生 topic 周增长榜，TrendFollower 会优先返回一个清楚标注限制的 partial ranking，而不是为了凑满数量继续扫很多网页。缺少周增长数据但仍然相关的开源项目，可以放在 `Additional Candidates` 区块里。
 
+## 已知限制和下一步
+
+当前版本已经支持在指令后面加入 topic / keyword scope。下一步更需要改进的是执行时间问题：TrendFollower 现在的 soft limit 大约是 3 分钟，hard limit 大约是 5 分钟，但在 topic 搜索比较宽的时候，它仍然可能需要逐个抓取 GitHub repo、README 和公开来源来判断相关性，所以运行起来不一定足够轻量。
+
+之后可以考虑加入轻量的 keyword / category 字典，或者为常见 repo 和趋势来源做简单缓存，减少每次从零开始搜索和判断的成本。这个改进的目标不是把 TrendFollower 做成完整的数据平台，而是让它在保持 lightweight skill 定位的同时，更稳定地在时间预算内返回结果。
+
 ## 关于 slash-style 调用
 
 在当前版本中，`/trendfollower` 是一个 slash-style prompt。也就是说，它是通过 skill description 让 Codex 识别的调用方式，不一定会出现在 Codex 的 slash command 菜单里。
 
-如果你的 Codex 环境支持自定义 slash command，之后也可以再加一个 command wrapper，把真正的 slash command 转发到这个 skill。即使没有 command wrapper，用户直接在聊天中输入 `/trendfollower`、`/trendfollower 1` 或 `/trendfollower 2` 也可以触发这个 workflow。
+如果你的 Codex 环境支持自定义 slash command，之后也可以再加一个 command wrapper，把真正的 slash command 转发到这个 skill。即使没有 command wrapper，用户直接在聊天中输入 `/trendfollower`、`/trendfollower 1`、`/trendfollower 2` 或带 topic 的调用方式，也可以触发这个 workflow。
 
 ## 依赖和限制
 
@@ -118,7 +124,7 @@ GitHub connector/plugin 不是默认 workflow 的必需项。TrendFollower 主�
 
 Python 也是可选的。`scripts/render_report.py` 只使用 Python 标准库，主要用于在已有结构化数据时稳定生成 Markdown 报告。即使不用这个脚本，skill 仍然可以在聊天中输出结果，并写入 Markdown 文件。
 
-需要注意的是，GitHub 趋势数据本身有时间窗口和来源差异。不同网站可能使用 weekly calendar、rolling 7 days 或其他统计方式，所以 TrendFollower 的输出会尽量标明数据来源、排序方式和当前限制，不把结果包装成绝对完整或永久准确的排名。
+需要注意的是，GitHub 趋势数据本身有来源差异和统计口径差异。不同网站可能用不同方式计算 weekly growth，所以 TrendFollower 的输出会尽量标明数据来源、排序方式和当前限制，不把结果包装成绝对完整或永久准确的排名。
 
 ## 项目结构
 
